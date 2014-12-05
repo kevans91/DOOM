@@ -774,7 +774,7 @@ void I_InitGraphics(void)
     X_visual = X_visualinfo.visual;
 
     // check for the MITSHM extension
-    doShm = XShmQueryExtension(X_display);
+    doShm = false; //XShmQueryExtension(X_display);
 
     // even if it's available, make sure it's a local connection
     if (doShm)
