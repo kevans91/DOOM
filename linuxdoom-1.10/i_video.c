@@ -164,9 +164,14 @@ int xlatekey(void)
 void I_ShutdownGraphics(void)
 {
   // Detach from X server
-  if(X_display == NULL) return;
+  static int destroying = 0;
+
+  if(X_display == NULL || destroying == 1) return;
+
+  destroying = 1;
+
   if (!XShmDetach(X_display, &X_shminfo))
-	    I_Error("XShmDetach() failed in I_ShutdownGraphics()");
+	I_Error("XShmDetach() failed in I_ShutdownGraphics()");
 
   // Release shared memory.
   shmdt(X_shminfo.shmaddr);
