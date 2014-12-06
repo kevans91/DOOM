@@ -399,7 +399,7 @@ void NetUpdate (void)
     gameticdiv = gametic/ticdup;
     for (i=0 ; i<newtics ; i++)
     {
-	I_StartTic ();
+	vidHandler->StartTic ();
 	D_ProcessEvents ();
 	if (maketic - gameticdiv >= BACKUPTICS/2-1)
 	    break;          // can't hold any more
@@ -457,9 +457,9 @@ void CheckAbort (void)
 	
     stoptic = I_GetTime () + 2; 
     while (I_GetTime() < stoptic) 
-	I_StartTic (); 
+	vidHandler->StartTic (); 
 	
-    I_StartTic ();
+    vidHandler->StartTic ();
     for ( ; eventtail != eventhead 
 	      ; eventtail = (++eventtail)&(MAXEVENTS-1) ) 
     { 

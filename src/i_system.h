@@ -39,6 +39,7 @@ void I_Init (void);
 // for the zone management.
 byte*	I_ZoneBase (int *size);
 
+void I_WaitVBL(int count);
 
 // Called by D_DoomLoop,
 // returns current time in tics.

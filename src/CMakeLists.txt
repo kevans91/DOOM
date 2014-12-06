@@ -22,8 +22,10 @@ set_target_properties(doom PROPERTIES LINK_FLAGS "-m32")
 
 include(FindPkgConfig)
 
+SET(ENV{PKG_CONFIG_LIBDIR} /usr/lib/i386-linux-gnu/pkgconfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 
+list(APPEND ADD_LIB_DIRS ${SDL2_LIBRARY_DIRS})
 include(${SDL2_INCLUDE_DIRS})
 
 target_link_libraries( doom

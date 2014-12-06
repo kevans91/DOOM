@@ -71,6 +71,7 @@ public:
 	void FinishUpdate();
 
 	void ReadScreen(byte *pixDest);
+	void SetPalette(byte *rgbPal);
 
 	int Height() { return height; }
 	void Height(int h) { height = h; }

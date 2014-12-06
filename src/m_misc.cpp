@@ -514,7 +514,7 @@ void M_ScreenShot (void)
     
     // munge planar buffer to linear
     linear = screens[2];
-    I_ReadScreen (linear);
+    vidHandler->ReadScreen (linear);
     
     // find a file name to save it to
     strcpy(lbmname,"DOOM00.pcx");

@@ -272,7 +272,7 @@ void D_Display (void)
     
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-	I_SetPalette (W_CacheLumpName ("PLAYPAL",PU_CACHE));
+	vidHandler->SetPalette (W_CacheLumpName ("PLAYPAL",PU_CACHE));
 
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
@@ -319,7 +319,7 @@ void D_Display (void)
     // normal update
     if (!wipe)
     {
-	I_FinishUpdate ();              // page flip or blit buffer
+	vidHandler->FinishUpdate ();              // page flip or blit buffer
 	return;
     }
     
@@ -338,9 +338,9 @@ void D_Display (void)
 	wipestart = nowtime;
 	done = wipe_ScreenWipe(wipe_Melt
 			       , 0, 0, SCREENWIDTH, SCREENHEIGHT, tics);
-	I_UpdateNoBlit ();
+	vidHandler->UpdateNoBlit ();
 	M_Drawer ();                            // menu is drawn even on top of wipes
-	I_FinishUpdate ();                      // page flip or blit buffer
+	vidHandler->FinishUpdate ();                      // page flip or blit buffer
     } while (!done);
 }
 
@@ -363,18 +363,19 @@ void D_DoomLoop (void)
 	printf ("debug output to: %s\n",filename);
 	debugfile = fopen (filename,"w");
     }
-	
-    I_InitGraphics ();
+
+    if(vidHandler == NULL)
+	vidHandler = new VideoHandler;	
 
     while (1)
     {
 	// frame syncronous IO operations
-	I_StartFrame ();                
+	vidHandler->StartFrame ();                
 	
 	// process one or more tics
 	if (singletics)
 	{
-	    I_StartTic ();
+	    vidHandler->StartTic ();
 	    D_ProcessEvents ();
 	    G_BuildTiccmd (&netcmds[consoleplayer][maketic%BACKUPTICS]);
 	    if (advancedemo)

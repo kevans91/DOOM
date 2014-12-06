@@ -152,7 +152,7 @@ void P_InitPicAnims (void)
     
     //	Init animation
     lastanim = anims;
-    for (i=0 ; animdefs[i].istexture != -1 ; i++)
+    for (i=0 ; animdefs[i].istexture != -1 && i < MAXANIMS; i++)
     {
 	if (animdefs[i].istexture)
 	{
@@ -165,7 +165,8 @@ void P_InitPicAnims (void)
 	}
 	else
 	{
-	    if (W_CheckNumForName(animdefs[i].startname) == -1)
+	    if (W_CheckNumForName(animdefs[i].startname) == -1 ||
+		W_CheckNumForName(animdefs[i].endname) == -1)
 		continue;
 
 	    lastanim->picnum = R_FlatNumForName (animdefs[i].endname);

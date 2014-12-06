@@ -1599,7 +1599,7 @@ boolean M_Responder (event_t* ev)
 	    if (usegamma > 4)
 		usegamma = 0;
 	    players[consoleplayer].message = gammamsg[usegamma];
-	    I_SetPalette (W_CacheLumpName ("PLAYPAL",PU_CACHE));
+	    vidHandler->SetPalette (W_CacheLumpName ("PLAYPAL",PU_CACHE));
 	    return true;
 				
 	}

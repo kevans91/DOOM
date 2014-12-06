@@ -24,23 +24,13 @@
 static const char
 rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
-#include <stdlib.h>
-#include <unistd.h>
-
-#include <stdarg.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-#include <netinet/in.h>
-#include <errno.h>
 #include <signal.h>
 
-#include "doomstat.h"
+#include "d_event.h"
+#include "d_main.h"
+#include "i_video.h"
 #include "i_system.h"
 #include "v_video.h"
-#include "m_argv.h"
-#include "d_main.h"
 
 VideoHandler *vidHandler = NULL;
 
@@ -71,22 +61,22 @@ int VideoHandler::TranslateKey(const SDL_Keycode &key) {
 		case SDLK_PAUSE:	return KEY_PAUSE;
 		case SDLK_EQUALS:
 		case SDLK_KP_EQUALS:	return KEY_EQUALS;
-      		case SDLK_MINUS:
-		case SDLK_KP_MINUS:	return KEY_MINUS:
-      		case SDLK_LSHIFT:
+		case SDLK_MINUS:
+		case SDLK_KP_MINUS:	return KEY_MINUS;
+		case SDLK_LSHIFT:
 		case SDLK_RSHIFT:	return KEY_RSHIFT;
 		case SDLK_LCTRL:
 		case SDLK_RCTRL:	return KEY_RCTRL;
 		case SDLK_LALT:
-		case SDLK_LMETA:
-		case SDLK_RALT;
-		case SDLK_RMETA:	return KEY_RALT;	
+		case SDLK_LGUI:
+		case SDLK_RALT:
+		case SDLK_RGUI:		return KEY_RALT;	
 		default: {
 			if(key >= SDLK_SPACE && key <= SDLK_BACKQUOTE)
 				return (key - SDLK_SPACE) + ' ';
 
-			if(key >= SDLK_A && key <= SDLK_Z)
-				return (key - SDLK_A) + 'a';
+			if(key >= SDLK_a && key <= SDLK_z)
+				return (key - SDLK_a) + 'a';
 		}
 	}
 
@@ -103,7 +93,7 @@ VideoHandler::VideoHandler(int width, int height)
 		: width(width), height(height),
 		windowHdl(NULL), renderHdl(NULL), blitSurface(NULL) {
 	int windowFlags = (SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_GRABBED);
-	int renderFlags = (SDL_RENDERER_SOFTWARE | SDL_RENDER_TARGETTEXTURE);
+	int renderFlags = (SDL_RENDERER_SOFTWARE | SDL_RENDERER_TARGETTEXTURE);
 	signal(SIGINT, (void (*)(int)) I_Quit);
 
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -115,7 +105,7 @@ VideoHandler::VideoHandler(int width, int height)
 						windowFlags);						
 
 	if(windowHdl == NULL)
-		I_Error("VideoHandler: Failed to initialize SD");
+		I_Error("VideoHandler: Failed to initialize SDL");
 
 	renderHdl = SDL_CreateRenderer(windowHdl, -1, renderFlags);
 
@@ -136,7 +126,12 @@ VideoHandler::VideoHandler(int width, int height)
 	blitSurface = SDL_CreateRGBSurface(0,
 						width, height,
 						8,
-						rmask, gmask, bmask, amask);
+						0, 0, 0, 0);
+
+	if(blitSurface == NULL)
+		I_Error("VideoHandler: Failed to initialize surface (%s)", SDL_GetError());
+
+	printf("Video initialized.\n");
 }
 
 VideoHandler::~VideoHandler() {
@@ -161,12 +156,11 @@ void VideoHandler::ProcessEvents() {
 		switch(sdlEvt.type) {
 			case SDL_KEYDOWN:
 			case SDL_KEYUP: {
-				const SDL_KeyboardEvent *kbEvt = dynamic_cast<const SDL_KeyboardEvent *>(&sdlEvt);
+				const SDL_KeyboardEvent *kbEvt = reinterpret_cast<const SDL_KeyboardEvent *>(&sdlEvt);
 	
 				dEvt.type = (sdlEvt.type == SDL_KEYDOWN ? ev_keydown : ev_keyup);	
 				
-				dEvt.data1 = TranslateKey(kbEvt->key.keysym.sym,
-							  kbEvt->key.);
+				dEvt.data1 = TranslateKey(kbEvt->keysym.sym);
 				D_PostEvent(&dEvt);
 
 				break;
@@ -174,7 +168,7 @@ void VideoHandler::ProcessEvents() {
 
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP: {
-				const SDL_MouseButtonEvent *mbEvt = dynamic_Cast<const SDL_MouseButtonEvent *>(&sdlEvt);
+				const SDL_MouseButtonEvent *mbEvt = reinterpret_cast<const SDL_MouseButtonEvent *>(&sdlEvt);
 
 				MouseData md;
 				md.btnClick = true;
@@ -191,7 +185,7 @@ void VideoHandler::ProcessEvents() {
 			}
 
 			case SDL_MOUSEMOTION: {	
-				const SDL_MouseButtonEvent *mbEvt = dynamic_Cast<const SDL_MouseButtonEvent *>(&sdlEvt);
+				const SDL_MouseButtonEvent *mbEvt = reinterpret_cast<const SDL_MouseButtonEvent *>(&sdlEvt);
 				
 				MouseData md;
 				md.btnMask = TranslateMouseButtons(mbEvt->button);
@@ -242,5 +236,25 @@ void VideoHandler::ReadScreen(byte *pixDest) {
 	memcpy(pixDest, screens[0], width * height);
 }
 
+void VideoHandler::SetPalette(byte *rgbPal) {
+	const int paletteSize = 256;
+	SDL_Color colors[paletteSize];
+	register int component = 0;
 
+	for(int i = 0; i < paletteSize; ++i) {
+		component = gammatable[usegamma][*rgbPal++];
+		colors[i].r = (component << 8) + component ;
+		
+		component = gammatable[usegamma][*rgbPal++];
+		colors[i].g = (component << 8) + component ;
 
+		component = gammatable[usegamma][*rgbPal++];
+		colors[i].b = (component << 8) + component ;
+	}
+
+	SDL_Palette *palette = SDL_AllocPalette(paletteSize);
+	SDL_SetPaletteColors(palette, colors,
+				0, paletteSize);
+	SDL_SetSurfacePalette(blitSurface, palette);
+	SDL_FreePalette(palette);
+}
