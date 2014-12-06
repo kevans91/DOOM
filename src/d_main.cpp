@@ -261,7 +261,7 @@ void D_Display (void)
     }
     
     // draw buffered stuff to screen
-    I_UpdateNoBlit ();
+    vidHandler->UpdateNoBlit ();
     
     // draw the view directly
     if (gamestate == GS_LEVEL && !automapactive && gametic)

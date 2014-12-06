@@ -23,42 +23,61 @@
 #ifndef __I_VIDEO__
 #define __I_VIDEO__
 
+#include <SDL2/SDL.h>
 
 #include "doomtype.h"
 #include "doomdef.h"
 
-// Takes full 8 bit values.
-void I_SetPalette (byte* palette);
+struct MouseData {
+	bool btnClick;
+	int btnMask;
 
-void I_UpdateNoBlit (void);
-void I_FinishUpdate (void);
+	int x;
+	int y;
 
-// Wait for vertical retrace or pause a bit.
-void I_WaitVBL(int count);
+	MouseData() : btnClick(false), btnMask(0), x(0), y(0) {}	
 
-void I_ReadScreen (byte* scr);
+	inline MouseData& operator =(const MouseData& rhs) {
+		btnMask = rhs.btnMask;
+		x = rhs.x;
+		y = rhs.y;
 
-void I_BeginRead (void);
-void I_EndRead (void);
+		return (*this);
+	}
+};
 
 class VideoHandler {
 protected:
 private:
 	int height;
 	int width;
+
+	MouseData lastMouseData;
+
 	SDL_Window *windowHdl;
 	SDL_Renderer *renderHdl;
+	SDL_Surface *blitSurface;
+
+	int TranslateKey(const SDL_Keycode &key);	
+	int TranslateMouseButtons(const char &btn);
 public:
 	VideoHandler(int width = SCREENWIDTH, int height = SCREENHEIGHT);
 	~VideoHandler();
+
+	void ProcessEvents();
+	void UpdateNoBlit();
+	void StartFrame();
+	void StartTic();
+	void FinishUpdate();
+
+	void ReadScreen(byte *pixDest);
 
 	int Height() { return height; }
 	void Height(int h) { height = h; }
 
 	int Width() { return width; }
 	void Width(int w) { width = w; }
-
 };
 
-
+extern VideoHandler *vidHandler;
 #endif
