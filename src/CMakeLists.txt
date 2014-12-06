@@ -20,6 +20,15 @@ add_executable( doom
 set_target_properties(doom PROPERTIES COMPILE_FLAGS "-g -w -m32 -fpermissive")
 set_target_properties(doom PROPERTIES LINK_FLAGS "-m32")
 
-target_link_libraries( doom Xext X11 nsl m )		
+include(FindPkgConfig)
+
+pkg_search_module(SDL2 REQUIRED sdl2)
+
+include(${SDL2_INCLUDE_DIRS})
+
+target_link_libraries( doom
+			${SDL2_LIBRARIES}
+			nsl
+			m)
 
 

@@ -25,19 +25,7 @@
 
 
 #include "doomtype.h"
-
-#ifdef __GNUG__
-#pragma interface
-#endif
-
-
-// Called by D_DoomMain,
-// determines the hardware configuration
-// and sets up the video mode
-void I_InitGraphics (void);
-
-
-void I_ShutdownGraphics(void);
+#include "doomdef.h"
 
 // Takes full 8 bit values.
 void I_SetPalette (byte* palette);
@@ -53,11 +41,24 @@ void I_ReadScreen (byte* scr);
 void I_BeginRead (void);
 void I_EndRead (void);
 
+class VideoHandler {
+protected:
+private:
+	int height;
+	int width;
+	SDL_Window *windowHdl;
+	SDL_Renderer *renderHdl;
+public:
+	VideoHandler(int width = SCREENWIDTH, int height = SCREENHEIGHT);
+	~VideoHandler();
+
+	int Height() { return height; }
+	void Height(int h) { height = h; }
+
+	int Width() { return width; }
+	void Width(int w) { width = w; }
+
+};
 
 
 #endif
-//-----------------------------------------------------------------------------
-//
-// $Log:$
-//
-//-----------------------------------------------------------------------------
