@@ -151,7 +151,7 @@ M_ReadFile
     if (fstat (handle,&fileinfo) == -1)
 	I_Error ("Couldn't read file %s", name);
     length = fileinfo.st_size;
-    buf = Z_Malloc (length, PU_STATIC, NULL);
+    buf = (byte *)Z_Malloc (length, PU_STATIC, NULL);
     count = read (handle, buf, length);
     close (handle);
 	
@@ -457,7 +457,7 @@ WritePCXfile
     pcx_t*	pcx;
     byte*	pack;
 	
-    pcx = Z_Malloc (width*height*2+1000, PU_STATIC, NULL);
+    pcx = (pcx_t *)Z_Malloc (width*height*2+1000, PU_STATIC, NULL);
 
     pcx->manufacturer = 0x0a;		// PCX id
     pcx->version = 5;			// 256 color
@@ -532,7 +532,7 @@ void M_ScreenShot (void)
     // save the pcx file
     WritePCXfile (lbmname, linear,
 		  SCREENWIDTH, SCREENHEIGHT,
-		  W_CacheLumpName ("PLAYPAL",PU_CACHE));
+		  (byte *)W_CacheLumpName ("PLAYPAL",PU_CACHE));
 	
     players[consoleplayer].message = "screen shot";
 }
