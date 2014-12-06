@@ -26,7 +26,6 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 #include <signal.h>
 
-#include "d_event.h"
 #include "d_main.h"
 #include "i_video.h"
 #include "i_system.h"
@@ -162,11 +161,14 @@ void VideoHandler::ProcessEvents() {
 				md.btnMask = TranslateMouseButtons(mbEvt->button);
 				md.x = mbEvt->x;
 				md.y = mbEvt->y;
-				lastMouseData = md;
 				
 				dEvt.type = ev_mouse;
 				dEvt.data1 = md.btnMask;
+				if(mbEvt->type == SDL_MOUSEBUTTONUP)
+					dEvt.data1 ^= lastMouseData.btnMask; 
 				
+				lastMouseData = md;
+
 				D_PostEvent(&dEvt);
 				break;
 			}
@@ -175,16 +177,17 @@ void VideoHandler::ProcessEvents() {
 				const SDL_MouseButtonEvent *mbEvt = reinterpret_cast<const SDL_MouseButtonEvent *>(&sdlEvt);
 				
 				MouseData md;
-				md.btnMask = 0;
+				md.btnMask = TranslateMouseButtons(mbEvt->button);
 				md.x = mbEvt->x;
 				md.y = mbEvt->y;
-				lastMouseData = md;
 
 				dEvt.type = ev_mouse;
 				dEvt.data1 = md.btnMask;
-				dEvt.data2 = (md.x - lastMouseData.x);
-				dEvt.data3 = (lastMouseData.y - md.y);
+				dEvt.data2 = (md.x - lastMouseData.x) << 2;
+				dEvt.data3 = (lastMouseData.y - md.y) << 2;
 
+				lastMouseData = md;
+				
 				if(dEvt.data2 || dEvt.data3)
 					D_PostEvent(&dEvt);
 				
