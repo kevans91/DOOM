@@ -115,7 +115,7 @@ BindToLocalPort
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = port;
 			
-    v = bind (s, (void *)&address, sizeof(address));
+    v = bind (s, (sockaddr *)&address, sizeof(address));
     if (v == -1)
 	I_Error ("BindToPort: bind: %s", strerror(errno));
 }
@@ -147,7 +147,7 @@ void PacketSend (void)
 		
     //printf ("sending %i\n",gametic);		
     c = sendto (sendsocket , &sw, doomcom->datalength
-		,0,(void *)&sendaddress[doomcom->remotenode]
+		,0,(sockaddr *)&sendaddress[doomcom->remotenode]
 		,sizeof(sendaddress[doomcom->remotenode]));
 	
     //	if (c == -1)
@@ -168,7 +168,7 @@ void PacketGet (void)
 				
     fromlen = sizeof(fromaddress);
     c = recvfrom (insocket, &sw, sizeof(sw), 0
-		  , (struct sockaddr *)&fromaddress, &fromlen );
+		  , (struct sockaddr *)&fromaddress, (socklen_t *)&fromlen );
     if (c == -1 )
     {
 	if (errno != EWOULDBLOCK)
@@ -248,7 +248,7 @@ void I_InitNetwork (void)
     int			p;
     struct hostent*	hostentry;	// host information entry
 	
-    doomcom = malloc (sizeof (*doomcom) );
+    doomcom = (doomcom_t *)malloc (sizeof (*doomcom) );
     memset (doomcom, 0, sizeof(*doomcom) );
     
     // set up for network

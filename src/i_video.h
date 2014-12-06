@@ -29,13 +29,12 @@
 #include "doomdef.h"
 
 struct MouseData {
-	bool btnClick;
 	int btnMask;
 
 	int x;
 	int y;
 
-	MouseData() : btnClick(false), btnMask(0), x(0), y(0) {}	
+	MouseData() : btnMask(0), x(0), y(0) {}	
 
 	inline MouseData& operator =(const MouseData& rhs) {
 		btnMask = rhs.btnMask;

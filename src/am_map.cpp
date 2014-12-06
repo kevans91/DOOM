@@ -679,11 +679,11 @@ AM_Responder
 	  case AM_FOLLOWKEY:
 	    followplayer = !followplayer;
 	    f_oldloc.x = MAXINT;
-	    plr->message = followplayer ? AMSTR_FOLLOWON : AMSTR_FOLLOWOFF;
+	    plr->message = const_cast<char *>(followplayer ? AMSTR_FOLLOWON : AMSTR_FOLLOWOFF);
 	    break;
 	  case AM_GRIDKEY:
 	    grid = !grid;
-	    plr->message = grid ? AMSTR_GRIDON : AMSTR_GRIDOFF;
+	    plr->message = const_cast<char *>(grid ? AMSTR_GRIDON : AMSTR_GRIDOFF);
 	    break;
 	  case AM_MARKKEY:
 	    sprintf(buffer, "%s %d", AMSTR_MARKEDSPOT, markpointnum);
