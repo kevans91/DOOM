@@ -507,7 +507,7 @@ void AM_loadPics(void)
     for (i=0;i<10;i++)
     {
 	sprintf(namebuf, "AMMNUM%d", i);
-	marknums[i] = W_CacheLumpName(namebuf, PU_STATIC);
+	marknums[i] = (patch_t *)W_CacheLumpName(namebuf, PU_STATIC);
     }
 
 }
@@ -559,7 +559,7 @@ void AM_LevelInit(void)
 //
 void AM_Stop (void)
 {
-    static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED };
+	static event_t st_notify = { (evtype_t)0, ev_keyup, AM_MSGEXITED };
 
     AM_unloadPics();
     automapactive = false;

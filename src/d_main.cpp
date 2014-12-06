@@ -196,7 +196,7 @@ void D_Display (void)
     static  boolean		menuactivestate = false;
     static  boolean		inhelpscreensstate = false;
     static  boolean		fullscreen = false;
-    static  gamestate_t		oldgamestate = -1;
+    static  gamestate_t		oldgamestate = (gamestate_t)-1;
     static  int			borderdrawcount;
     int				nowtime;
     int				tics;
@@ -215,7 +215,7 @@ void D_Display (void)
     if (setsizeneeded)
     {
 	R_ExecuteSetViewSize ();
-	oldgamestate = -1;                      // force background redraw
+	oldgamestate = (gamestate_t)-1;                      // force background redraw
 	borderdrawcount = 3;
     }
 
@@ -272,7 +272,7 @@ void D_Display (void)
     
     // clean up border stuff
     if (gamestate != oldgamestate && gamestate != GS_LEVEL)
-	vidHandler->SetPalette (W_CacheLumpName ("PLAYPAL",PU_CACHE));
+	vidHandler->SetPalette ((byte *)W_CacheLumpName ("PLAYPAL",PU_CACHE));
 
     // see if the border needs to be initially drawn
     if (gamestate == GS_LEVEL && oldgamestate != GS_LEVEL)
@@ -307,7 +307,7 @@ void D_Display (void)
 	else
 	    y = viewwindowy+4;
 	V_DrawPatchDirect(viewwindowx+(scaledviewwidth-68)/2,
-			  y,0,W_CacheLumpName ("M_PAUSE", PU_CACHE));
+			  y,0,(patch_t *)W_CacheLumpName ("M_PAUSE", PU_CACHE));
     }
 
 
@@ -434,7 +434,7 @@ void D_PageTicker (void)
 //
 void D_PageDrawer (void)
 {
-    V_DrawPatch (0,0, 0, W_CacheLumpName(pagename, PU_CACHE));
+	V_DrawPatch(0, 0, 0, (patch_t *)W_CacheLumpName(pagename, PU_CACHE));
 }
 
 
@@ -549,7 +549,7 @@ void D_AddFile (char *file)
     for (numwadfiles = 0 ; wadfiles[numwadfiles] ; numwadfiles++)
 	;
 
-    newfile = malloc (strlen(file)+1);
+    newfile = (char *)malloc (strlen(file)+1);
     strcpy (newfile, file);
 	
     wadfiles[numwadfiles] = newfile;
@@ -749,7 +749,7 @@ void FindResponseFile (void)
 	    fseek (handle,0,SEEK_END);
 	    size = ftell(handle);
 	    fseek (handle,0,SEEK_SET);
-	    file = malloc (size);
+	    file = (char *)malloc (size);
 	    fread (file,size,1,handle);
 	    fclose (handle);
 			
@@ -758,7 +758,7 @@ void FindResponseFile (void)
 		moreargs[index++] = myargv[k];
 			
 	    firstargv = myargv[0];
-	    myargv = malloc(sizeof(char *)*MAXARGVS);
+	    myargv = (char **)malloc(sizeof(char *)*MAXARGVS);
 	    memset(myargv,0,sizeof(char *)*MAXARGVS);
 	    myargv[0] = firstargv;
 			
@@ -874,14 +874,7 @@ void D_DoomMain (void)
 
     if (devparm)
 	printf(D_DEVSTR);
-    
-    if (M_CheckParm("-cdrom"))
-    {
-	printf(D_CDROM);
-	mkdir("c:\\doomdata",0);
-	strcpy (basedefault,"c:/doomdata/default.cfg");
-    }	
-    
+        
     // turbo option
     if ( (p=M_CheckParm ("-turbo")) )
     {
@@ -968,7 +961,7 @@ void D_DoomMain (void)
     p = M_CheckParm ("-skill");
     if (p && p < myargc-1)
     {
-	startskill = myargv[p+1][0]-'1';
+	startskill = (skill_t)(myargv[p+1][0]-'1');
 	autostart = true;
     }
 
@@ -1027,7 +1020,7 @@ void D_DoomMain (void)
     {
 	// These are the lumps that will be checked in IWAD,
 	// if any one is not present, execution will be aborted.
-	char name[23][8]=
+	char name[23][9]=
 	{
 	    "e2m1","e2m2","e2m3","e2m4","e2m5","e2m6","e2m7","e2m8","e2m9",
 	    "e3m1","e3m3","e3m3","e3m4","e3m5","e3m6","e3m7","e3m8","e3m9",
