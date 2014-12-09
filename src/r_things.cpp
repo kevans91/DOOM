@@ -203,7 +203,7 @@ void R_InitSpriteDefs (char** namelist)
     // scan all the lump names for each of the names,
     //  noting the highest frame letter.
     // Just compare 4 characters as ints
-    for (i=0 ; i<numsprites ; i++)
+    for (i=0 ; i<numsprites && i < NUMSPRITES; i ++)
     {
 	spritename = namelist[i];
 	memset (sprtemp,-1, sizeof(sprtemp));

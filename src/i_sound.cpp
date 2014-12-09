@@ -24,6 +24,8 @@
 static const char
 rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 
+#if 0
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,22 +33,21 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 
 #include <math.h>
 
-#include <sys/time.h>
 #include <sys/types.h>
 
-#ifndef LINUX
-#include <sys/filio.h>
-#endif
-
 #include <fcntl.h>
+#ifdef LINUX
 #include <unistd.h>
 #include <sys/ioctl.h>
+#endif
 
 // Linux voxware output.
+#ifdef LINUX
 #include <linux/soundcard.h>
+#endif
 
 // Timer stuff. Experimental.
-#include <time.h>
+#include <ctime>
 #include <signal.h>
 
 #include "z_zone.h"
@@ -984,3 +985,33 @@ void I_SoundDelTimer()
   if ( I_SoundSetTimer( 0 ) == -1)
     fprintf( stderr, "I_SoundDelTimer: failed to remove interrupt. Doh!\n");
 }
+#else
+#include "sounds.h"
+
+void I_InitSound() {}
+
+void I_UpdateSound(void) {}
+void I_SubmitSound(void) {}
+void I_ShutdownSound(void) {}
+void I_SetChannels() {}
+int I_GetSfxLumpNum(sfxinfo_t* sfxinfo) {return 0;}
+int I_StartSound
+(int		id,
+int		vol,
+int		sep,
+int		pitch,
+int		priority) {return 0;}
+void I_StopSound(int handle) {}
+int I_SoundIsPlaying(int handle) { return 0;}
+void I_UpdateSoundParams(int		handle, int		vol, int		sep, int		pitch) {}
+void I_InitMusic(void) {}
+void I_ShutdownMusic(void) {}
+void I_SetMusicVolume(int volume) {}
+void I_PauseSong(int handle) {}
+void I_ResumeSong(int handle) {}
+int I_RegisterSong(void *data) { return 0;}
+void I_PlaySong(int		handle, int		looping) {}
+void I_StopSong(int handle) {}
+void I_UnRegisterSong(int handle) {}
+
+#endif

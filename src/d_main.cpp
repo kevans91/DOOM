@@ -30,10 +30,10 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #define	BGCOLOR		7
 #define	FGCOLOR		8
 
+#include <stdlib.h>
 
 #ifdef NORMALUNIX
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -656,7 +656,7 @@ void IdentifyVersion (void)
 	return;
     }
 
-    if ( !access (doom2fwad,R_OK) )
+/*    if ( W_Readable(doom2fwad) )
     {
 	gamemode = commercial;
 	// C'est ridicule!
@@ -666,49 +666,49 @@ void IdentifyVersion (void)
 	D_AddFile (doom2fwad);
 	return;
     }
-
-    if ( !access (doom2wad,R_OK) )
+	*/
+	if (W_Readable("DOOM2.WAD"))
     {
 	gamemode = commercial;
-	D_AddFile (doom2wad);
+	D_AddFile ("DOOM2.WAD");
 	return;
     }
-
-    if ( !access (plutoniawad, R_OK ) )
+	/*
+	if (W_Readable(plutoniawad))
     {
       gamemode = commercial;
       D_AddFile (plutoniawad);
       return;
     }
 
-    if ( !access ( tntwad, R_OK ) )
+	if (W_Readable(tntwad))
     {
       gamemode = commercial;
       D_AddFile (tntwad);
       return;
     }
 
-    if ( !access (doomuwad,R_OK) )
+	if (W_Readable(doomuwad))
     {
       gamemode = retail;
       D_AddFile (doomuwad);
       return;
     }
 
-    if ( !access (doomwad,R_OK) )
+	if (W_Readable(doomwad))
     {
       gamemode = registered;
       D_AddFile (doomwad);
       return;
     }
 
-    if ( !access (doom1wad,R_OK) )
+	if (W_Readable(doom1wad))
     {
       gamemode = shareware;
       D_AddFile (doom1wad);
       return;
     }
-
+	*/
     printf("Game mode indeterminate.\n");
     gamemode = indetermined;
 
@@ -1094,8 +1094,8 @@ void D_DoomMain (void)
     printf ("I_Init: Setting up machine state.\n");
     I_Init ();
 
-    printf ("D_CheckNetGame: Checking network game status.\n");
-    D_CheckNetGame ();
+//    printf ("D_CheckNetGame: Checking network game status.\n");
+//    D_CheckNetGame ();
 
     printf ("S_Init: Setting up sound.\n");
     S_Init (snd_SfxVolume /* *8 */, snd_MusicVolume /* *8*/ );

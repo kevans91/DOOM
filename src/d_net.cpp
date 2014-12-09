@@ -373,6 +373,7 @@ void NetUpdate (void)
     int				realstart;
     int				gameticdiv;
     
+	return;
     // check time
     nowtime = I_GetTime ()/ticdup;
     newtics = nowtime - gametime;
@@ -507,7 +508,7 @@ void D_ArbitrateNetStart (void)
     else
     {
 	// key player, send the setup info
-	printf ("sending network start info...\n");
+/*	printf ("sending network start info...\n");
 	do
 	{
 	    CheckAbort ();
@@ -542,7 +543,7 @@ void D_ArbitrateNetStart (void)
 	    for (i=1 ; i<doomcom->numnodes ; i++)
 		if (!gotinfo[i])
 		    break;
-	} while (i < doomcom->numnodes);
+	} while (i < doomcom->numnodes);*/
     }
 }
 
@@ -644,6 +645,7 @@ void TryRunTics (void)
     int		counts;
     int		numplaying;
     
+	return;
     // get real tics		
     entertic = I_GetTime ()/ticdup;
     realtics = entertic - oldentertics;

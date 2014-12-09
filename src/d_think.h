@@ -30,6 +30,9 @@
 #pragma interface
 #endif
 
+#include <cstdio>
+
+
 //
 // Experimental stuff.
 // To compile this as "ANSI C with classes"
@@ -40,12 +43,18 @@ typedef  void (*actionf_v)();
 typedef  void (*actionf_p1)( void * );
 typedef  void (*actionf_p2)( void *, void * );
 
-typedef union
+typedef union actionf_t
 {
   actionf_p1	acp1;
   actionf_v	acv;
   actionf_p2	acp2;
 
+#ifdef _MSC_VER
+  actionf_t(actionf_p1 p) : acp1(p) {}
+  actionf_t(actionf_v  v) : acv(v) {}
+  actionf_t(actionf_p2 p2) : acp2(p2) {}
+  actionf_t() {};
+#endif
 } actionf_t;
 
 
@@ -64,6 +73,8 @@ typedef struct thinker_s
     struct thinker_s*	next;
     think_t		function;
     
+	thinker_s() : prev(NULL), next(NULL) {
+	}
 } thinker_t;
 
 

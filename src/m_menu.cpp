@@ -25,7 +25,11 @@
 static const char
 rcsid[] = "$Id: m_menu.c,v 1.7 1997/02/03 22:45:10 b1 Exp $";
 
+#ifdef LINUX
 #include <unistd.h>
+#endif
+
+#include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -510,28 +514,28 @@ menu_t  SaveDef =
 //
 void M_ReadSaveStrings(void)
 {
-    int             handle;
-    int             count;
     int             i;
     char    name[256];
 	
     for (i = 0;i < load_end;i++)
     {
-	if (M_CheckParm("-cdrom"))
-	    sprintf(name,"c:\\doomdata\\"SAVEGAMENAME"%d.dsg",i);
-	else
-	    sprintf(name,SAVEGAMENAME"%d.dsg",i);
+		if (M_CheckParm("-cdrom"))
+			sprintf(name,"c:\\doomdata\\"SAVEGAMENAME"%d.dsg",i);
+		else
+			sprintf(name,SAVEGAMENAME"%d.dsg",i);
 
-	handle = open (name, O_RDONLY | 0, 0666);
-	if (handle == -1)
-	{
-	    strcpy(&savegamestrings[i][0],EMPTYSTRING);
-	    LoadMenu[i].status = 0;
-	    continue;
-	}
-	count = read (handle, &savegamestrings[i], SAVESTRINGSIZE);
-	close (handle);
-	LoadMenu[i].status = 1;
+		std::ifstream in(name, std::ios::binary | std::ios::beg);
+
+		if (!in.is_open())
+		{
+			strcpy(&savegamestrings[i][0],EMPTYSTRING);
+			LoadMenu[i].status = 0;
+			continue;
+		}
+
+		in.read(reinterpret_cast<char *>(&savegamestrings[i]), SAVESTRINGSIZE);
+		in.close();
+		LoadMenu[i].status = 1;
     }
 }
 

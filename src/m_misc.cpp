@@ -31,7 +31,10 @@ rcsid[] = "$Id: m_misc.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include <sys/types.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <fstream>
+#ifdef LINUX
 #include <unistd.h>
+#endif
 
 #include <ctype.h>
 
@@ -116,19 +119,16 @@ M_WriteFile
   int		length )
 {
     int		handle;
-    int		count;
 	
-    handle = open ( name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	std::ofstream out(name, std::ios::binary | std::ios::trunc);
 
-    if (handle == -1)
-	return false;
+	if(!out.is_open()) return false;
 
-    count = write (handle, source, length);
-    close (handle);
+	out.write((char*)source, length);
+
+	out.flush();
+	out.close();
 	
-    if (count < length)
-	return false;
-		
     return true;
 }
 
@@ -145,19 +145,17 @@ M_ReadFile
     struct stat	fileinfo;
     byte		*buf;
 	
-    handle = open (name, O_RDONLY | O_BINARY, 0666);
-    if (handle == -1)
-	I_Error ("Couldn't read file %s", name);
-    if (fstat (handle,&fileinfo) == -1)
-	I_Error ("Couldn't read file %s", name);
+	std::ifstream in(name, std::ios::binary | std::ios::beg);
+	if(!in.is_open())
+		I_Error ("Couldn't read file %s", name);
+
     length = fileinfo.st_size;
+
     buf = (byte *)Z_Malloc (length, PU_STATIC, NULL);
-    count = read (handle, buf, length);
-    close (handle);
+	in.read((char *)buf, length);
+
+	in.close();
 	
-    if (count < length)
-	I_Error ("Couldn't read file %s", name);
-		
     *buffer = buf;
     return length;
 }
@@ -523,7 +521,9 @@ void M_ScreenShot (void)
     {
 	lbmname[4] = i/10 + '0';
 	lbmname[5] = i%10 + '0';
-	if (access(lbmname,0) == -1)
+
+		// Hacky, will do away with this later.
+	if (!W_Readable(lbmname))
 	    break;	// file doesn't exist
     }
     if (i==100)
